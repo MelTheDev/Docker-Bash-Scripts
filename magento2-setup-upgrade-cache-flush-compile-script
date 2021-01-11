@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+#Mel - 7/1/2021
+
+echo "Setup Upgrading.."
+bin/magento se:up && chmod -R 777 var/ generated/ pub/ app/
+
+echo "Compiling.."
+sleep 1
+bin/magento se:di:co && chmod -R 777 var/ generated/ pub/ app/
+
+echo "Flushing Cache.."
+sleep 1
+bin/magento c:f
+
+sleep 1
+chmod -R 777 var/ generated/ pub/ app/
+
+read -r -p "Do you want to deploy static view files ? [y/n]" response
+
+response=${response,,} # tolower
+
+ if [[ $response =~ ^(yes|y| ) ]] || [[ -z $response ]]; then
+    bin/magento setup:static-content:deploy -f
+    sleep 1
+    chmod -R 777 var/ generated/ pub/ app/
+ fi
+
+echo "Done!"
